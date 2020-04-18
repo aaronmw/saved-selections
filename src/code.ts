@@ -1,5 +1,4 @@
 import clone from 'lodash/clone';
-import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import setWith from 'lodash/setWith';
@@ -44,13 +43,14 @@ const resetPageState = async () => {
 };
 
 const getPageState = async () => {
-    const pageState =
-        JSON.parse(await figma.currentPage.getPluginData(PAGE_STATE_KEY)) ||
-        INITIAL_PAGE_STATE;
+    const pageStateStringified = await figma.currentPage.getPluginData(
+        PAGE_STATE_KEY,
+    );
+    const pageState = pageStateStringified.length
+        ? JSON.parse(pageStateStringified)
+        : INITIAL_PAGE_STATE;
 
-    return typeof pageState.savedSelections !== 'object'
-        ? INITIAL_PAGE_STATE
-        : pageState;
+    return pageState;
 };
 
 const updatePageState = async ({ pathToValue, newValue }) => {

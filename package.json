@@ -1,5 +1,5 @@
 {
-    "name": "text-sorter",
+    "name": "saved-selections",
     "version": "1.0.0",
     "description": "A Figma plugin to sort text objects",
     "main": "dist/code.js",

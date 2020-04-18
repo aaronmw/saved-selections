@@ -208,6 +208,7 @@ export const Icon = ({ color = ICON_COLOR, className = '', name }) => (
         viewBox={`0 0 ${ICON_MAP[name].viewBoxWidth || 512} 512`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        style={{ flexShrink: 0, flexGrow: 0 }}
     >
         <path fill={color} d={ICON_MAP[name].data} />
     </svg>
