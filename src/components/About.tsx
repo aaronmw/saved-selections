@@ -66,7 +66,7 @@ const About = () => {
                     />
                     <IconLink
                         iconName="github"
-                        href="https://github.com/aaronmw/random"
+                        href="https://github.com/aaronmw/saved-selections"
                     />
                     <IconLink
                         iconName="coffee-togo"

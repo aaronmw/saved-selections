@@ -48,7 +48,7 @@ const SavedSelectionList = ({ data, actions }) => {
     const { isLoaded, pluginState, pageState } = data;
     const { setIsLoaded, setPluginState, setPageState } = actions;
     const [editingSelectionID, setEditingSelectionID] = React.useState('');
-    const [tempLabel, setTempLabel] = React.useState('');
+    const [tempLabel, setTempLabel] = React.useState('Untitled');
     const savedSelections = get(pageState, 'savedSelections', {});
 
     React.useEffect(() => {
@@ -85,12 +85,17 @@ const SavedSelectionList = ({ data, actions }) => {
             labelInput.focus();
             (labelInput as any).select();
         }
-    }, [editingSelectionID]);
+    }, [editingSelectionID, pageState]);
 
     const saveSelection = () => {
+        const newSelectionID = `${Date.now()}`;
+
         sendMessage({
             type: 'saveSelection',
+            params: { newSelectionID },
         });
+
+        setEditingSelectionID(newSelectionID);
     };
 
     const restoreSelection = (selectionID, evt) => {
@@ -112,6 +117,10 @@ const SavedSelectionList = ({ data, actions }) => {
 
     const handleClickSave = (selectionID, evt) => {
         evt.stopPropagation();
+
+        if (tempLabel.trim() === '') {
+            return false;
+        }
 
         sendMessage({
             type: 'relabelSavedSelection',

@@ -95,12 +95,16 @@ figma.ui.onmessage = async msg => {
     if (msg.type === 'saveSelection') {
         const selectedNodes = figma.currentPage.selection;
 
-        if (selectedNodes.length <= 1) {
+        if (selectedNodes.length === 0) {
             notify('Select something first!');
             return;
         }
 
-        const selectionID = get(msg.params, 'selectionID', `${Date.now()}`);
+        const selectionID = get(
+            msg.params,
+            'newSelectionID',
+            get(msg.params, 'selectionID'),
+        );
 
         const label = get(
             pageState,
