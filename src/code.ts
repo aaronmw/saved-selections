@@ -72,6 +72,8 @@ const refreshUI = async () => {
     });
 };
 
+setInterval(refreshUI, 500);
+
 figma.ui.onmessage = async msg => {
     const pluginState = await getPluginState();
     const pageState = await getPageState();

@@ -85,7 +85,7 @@ const SavedSelectionList = ({ data, actions }) => {
             labelInput.focus();
             (labelInput as any).select();
         }
-    }, [editingSelectionID, pageState]);
+    }, [editingSelectionID]);
 
     const saveSelection = () => {
         const newSelectionID = `${Date.now()}`;
@@ -103,6 +103,8 @@ const SavedSelectionList = ({ data, actions }) => {
             type: 'restoreSelection',
             params: { selectionID, shouldAppendInstead: evt.shiftKey },
         });
+
+        window.parent.focus();
     };
 
     const handleClickEdit = (selectionID, evt) => {
