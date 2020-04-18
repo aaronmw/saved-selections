@@ -1,85 +1,179 @@
-import isArray from 'lodash/isArray';
-import mergeWith from 'lodash/mergeWith';
+import clone from 'lodash/clone';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
+import setWith from 'lodash/setWith';
 
-const WINDOW_WIDTH = 290;
-const WINDOW_HEIGHT = 600;
+const WINDOW_WIDTH = 240;
+const WINDOW_HEIGHT = 250;
 
 figma.showUI(__html__, {
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
 });
 
-const storeClientData = async (key, val) => {
-    await figma.clientStorage.setAsync(key, val);
+const notify = message => (figma as any).notify(message);
+
+const PLUGIN_STATE_KEY = 'pluginState';
+const PAGE_STATE_KEY = 'pageState';
+
+const setPluginState = async val => {
+    await figma.clientStorage.setAsync(PLUGIN_STATE_KEY, val);
 };
 
-const retrieveClientData = async key => {
-    return await figma.clientStorage.getAsync(key);
+const getPluginState = async () => {
+    return await figma.clientStorage.getAsync(PLUGIN_STATE_KEY);
+};
+
+const INITIAL_PAGE_STATE = {
+    savedSelections: {},
+};
+
+const setPageState = async value => {
+    await figma.currentPage.setPluginData(
+        PAGE_STATE_KEY,
+        JSON.stringify(value),
+    );
+};
+
+const resetPageState = async () => {
+    await figma.currentPage.setPluginData(
+        PAGE_STATE_KEY,
+        JSON.stringify(INITIAL_PAGE_STATE),
+    );
+};
+
+const getPageState = async () => {
+    const pageState =
+        JSON.parse(await figma.currentPage.getPluginData(PAGE_STATE_KEY)) ||
+        INITIAL_PAGE_STATE;
+
+    return typeof pageState.savedSelections !== 'object'
+        ? INITIAL_PAGE_STATE
+        : pageState;
+};
+
+const updatePageState = async ({ pathToValue, newValue }) => {
+    const currentPageState = await getPageState();
+    const newPageState = setWith(
+        clone(currentPageState),
+        pathToValue,
+        newValue,
+        clone,
+    );
+    await setPageState(newPageState);
+};
+
+const refreshUI = async () => {
+    // await resetPageState();
+    await figma.ui.postMessage({
+        savedPluginState: await getPluginState(),
+        savedPageState: await getPageState(),
+    });
 };
 
 figma.ui.onmessage = async msg => {
+    const pluginState = await getPluginState();
+    const pageState = await getPageState();
+
+    if (msg.type === 'setWindowHeight') {
+        await figma.ui.resize(WINDOW_WIDTH, msg.params.height || WINDOW_HEIGHT);
+    }
+
     if (msg.type === 'init') {
-        const newState = {};
-        const savedState = await retrieveClientData('pluginState');
-        mergeWith(
-            newState,
-            msg.initialState,
-            savedState,
-            (objValue, srcValue) => {
-                if (isArray(objValue) && isArray(srcValue)) {
-                    return srcValue;
-                }
-            },
-        );
-        figma.ui.postMessage(newState);
+        await refreshUI();
     }
 
-    if (msg.type === 'saveState') {
-        await storeClientData('pluginState', msg.params);
+    if (msg.type === 'savePluginState') {
+        await setPluginState(msg.params);
     }
 
-    if (msg.type === 'run') {
-        const nodes = figma.currentPage.selection;
+    if (msg.type === 'savePageState') {
+        await setPageState(msg.params);
+    }
 
-        if (nodes.length <= 1) {
-            (figma as any).notify(
-                'I need two or more text elements to sort 🤦',
-            );
+    if (msg.type === 'saveSelection') {
+        const selectedNodes = figma.currentPage.selection;
+
+        if (selectedNodes.length <= 1) {
+            notify('Select something first!');
             return;
         }
 
-        nodes.map(node => {
-            if (node.type !== 'TEXT') {
-                (figma as any).notify('This only works on text 🤦');
-                return;
-            }
+        const selectionID = get(msg.params, 'selectionID', `${Date.now()}`);
+
+        const label = get(
+            pageState,
+            ['savedSelections', selectionID, 'label'],
+            'Untitled',
+        );
+
+        await updatePageState({
+            pathToValue: ['savedSelections', selectionID],
+            newValue: {
+                nodeIDs: selectedNodes.map(node => node.id),
+                label,
+            },
         });
 
-        const textNodes = nodes as TextNode[];
+        await refreshUI();
 
-        const values = textNodes.map(node => node.characters);
+        notify('💾 Selection saved');
+    }
 
-        values.sort((a, b) => {
-            const aInt = parseInt(a);
-            const bInt = parseInt(b);
-            return aInt - bInt;
+    if (msg.type === 'relabelSavedSelection') {
+        const { selectionID, newValue } = msg.params;
+
+        await updatePageState({
+            pathToValue: ['savedSelections', selectionID, 'label'],
+            newValue,
         });
 
-        if (msg.params.sortOrder === 'desc') {
-            values.reverse();
+        await refreshUI();
+
+        notify('✍️ Selection renamed');
+    }
+
+    if (msg.type === 'restoreSelection') {
+        const shouldAppendInstead = get(
+            msg.params,
+            'shouldAppendInstead',
+            false,
+        );
+
+        const { selectionID } = msg.params;
+        const savedSelection = get(pageState, ['savedSelections', selectionID]);
+        const { nodeIDs } = savedSelection;
+
+        const remainingNodesInSelection = nodeIDs
+            .map(nodeID => figma.getNodeById(nodeID))
+            .filter(node => node !== null);
+
+        const selectedNodes = figma.currentPage.selection;
+
+        const nodesToSelect = shouldAppendInstead
+            ? selectedNodes.concat(remainingNodesInSelection)
+            : remainingNodesInSelection;
+
+        if (nodesToSelect.length) {
+            figma.currentPage.selection = nodesToSelect;
+        } else {
+            notify('Everything in this selection has since been deleted');
         }
+    }
 
-        textNodes.map(async (node, index) => {
-            const len = node.characters.length;
+    if (msg.type === 'deleteSavedSelection') {
+        const { selectionID } = msg.params;
+        const { savedSelections } = pageState;
 
-            for (let i = 0; i < len; i++) {
-                await figma.loadFontAsync(
-                    node.getRangeFontName(i, i + 1) as FontName,
-                );
-            }
-
-            node.characters = values[index];
+        await updatePageState({
+            pathToValue: 'savedSelections',
+            newValue: omit(savedSelections, selectionID),
         });
+
+        await refreshUI();
+
+        notify('💥 Deleted');
     }
 
     if (msg.type === 'close') {

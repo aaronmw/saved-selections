@@ -44,7 +44,7 @@ export const Columns = styled.div`
     justify-content: ${props => (props.align ? props.align : 'flex-end')};
 
     & > * {
-        margin-left: 8px;
+        margin-left: ${props => (props.spacing === 'none' ? 0 : 8)}px;
 
         &:first-child {
             margin-left: 0;
