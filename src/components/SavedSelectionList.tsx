@@ -50,6 +50,7 @@ const SavedSelectionList = ({ data, actions }) => {
     const [editingSelectionID, setEditingSelectionID] = React.useState('');
     const [tempLabel, setTempLabel] = React.useState('Untitled');
     const savedSelections = get(pageState, 'savedSelections', {});
+    const inputElRef = React.createRef();
 
     React.useEffect(() => {
         onmessage = message => {
@@ -80,11 +81,15 @@ const SavedSelectionList = ({ data, actions }) => {
     }, []);
 
     React.useEffect(() => {
-        const labelInput = document.getElementById('savedSelectionLabelInput');
-        if (labelInput) {
-            labelInput.focus();
-            (labelInput as any).select();
-        }
+        setTimeout(() => {
+            const labelInput = document.getElementById(
+                'savedSelectionLabelInput',
+            );
+            if (labelInput) {
+                labelInput.focus();
+                (labelInput as any).select();
+            }
+        }, 10);
     }, [editingSelectionID]);
 
     const saveSelection = () => {
