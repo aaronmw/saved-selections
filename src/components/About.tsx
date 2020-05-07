@@ -22,7 +22,7 @@ const About = () => {
         sendMessage({
             type: 'setWindowHeight',
             params: {
-                height: 400,
+                height: 420,
             },
         });
     }, []);
@@ -75,10 +75,10 @@ const About = () => {
                 </Columns>
             </Row>
             <Row style={{ padding: '0 15px', marginTop: '30px' }}>
-                I'm a Product Designer in Toronto, Canada. I built this to save
-                time when generating graphs and lists to make my mocks look more
-                realistic. I hope you'll find it useful somehow or, if not, let
-                me know what's missing.
+                I'm a Product Designer in Toronto, Canada. I built this plugin
+                after realizing how much time I was spending making and
+                re-making selections across multiple frames and groups. I hope
+                you like it, and let me know if there's something missing!
             </Row>
         </Route>
     );
