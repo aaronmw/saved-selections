@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import {
     COLOR_BLUE,
+    COLOR_BORDER,
     COLOR_HOVER_BG,
     COLOR_TEXT,
     COLOR_TEXT_LIGHT,
@@ -13,9 +14,15 @@ const commonStyles = `
     width: 100%;
     text-align: center;
     background-color: white;
+    
+    &:focus {
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 0 0 1px ${COLOR_BLUE};
+    }
 `;
 
-const StyledInput = styled.input`
+export const Input = styled.input`
     ${commonStyles}
     padding: 0 8px;
     text-align: left;
@@ -24,64 +31,8 @@ const StyledInput = styled.input`
     width: 100%;
 
     &:focus {
-        border: 2px solid ${COLOR_BLUE};
+        border: 1px solid ${COLOR_BLUE};
     }
-`;
-
-const ColorSwatch = styled.div`
-    position: relative;
-    width: 100%;
-
-    ${props =>
-        props.color !== null &&
-        `
-        text-transform: uppercase;
-        
-        &:before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 5px;
-            width: 18px;
-            height: 18px;
-            background-color: ${props.color};
-            border: 1px solid ${COLOR_HOVER_BG};
-        }
-    `}
-`;
-
-export const Input = props => {
-    const { value } = props;
-    const isColor = `${value}`.trim().match(/^#[0-9a-f]{6}?$/i);
-    const InputEl = <StyledInput {...props} />;
-
-    return <ColorSwatch color={isColor ? value : null}>{InputEl}</ColorSwatch>;
-};
-
-export const Label = styled.label`
-    display: flex;
-    white-space: nowrap;
-    margin-top: 8px;
-    align-items: center;
-
-    & > :first-child {
-        margin-right: 4px;
-    }
-    & > [type='radio'] {
-        position: relative;
-        top: -1px;
-    }
-    & + & {
-        margin-left: 15px !important;
-    }
-`;
-
-export const InputLabel = styled.span`
-    display: inline-block;
-    flex-shrink: 0;
-    flex-grow: 1;
-    width: 35px;
-    text-align: right;
 `;
 
 export const Button = styled.button`
@@ -99,6 +50,26 @@ export const Button = styled.button`
         border: 2px solid #1170ae;
     }
 `;
+
+export const ToggleButton = styled.button(
+    ({ isActive = false }) => `
+        align-items: center;
+        color: ${isActive ? COLOR_BLUE : COLOR_TEXT_LIGHT};
+        cursor: pointer;
+        display: flex;
+        font-weight: 900;
+        height: 24px;
+        justify-content: center;
+        width: 24px;
+        
+        &:hover {
+            background-color: ${COLOR_HOVER_BG};
+        }
+        &:active {
+            background-color: ${COLOR_BORDER};
+        }
+    `,
+);
 
 const TOGGLE_WIDTH = 25;
 const TOGGLE_HEIGHT = 11;
@@ -149,7 +120,7 @@ const ICON_MAP = {
     'floppy-disc': {
         data:
             'M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM288 64v96H96V64h192zm128 368c0 8.822-7.178 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h16v104c0 13.255 10.745 24 24 24h208c13.255 0 24-10.745 24-24V64.491a15.888 15.888 0 0 1 7.432 4.195l83.882 83.882A15.895 15.895 0 0 1 416 163.882V432zM224 232c-48.523 0-88 39.477-88 88s39.477 88 88 88 88-39.477 88-88-39.477-88-88-88zm0 144c-30.879 0-56-25.121-56-56s25.121-56 56-56 56 25.121 56 56-25.121 56-56 56z',
-        label: 'Saved Config',
+        label: 'Saved Item',
     },
     github: {
         data:
@@ -185,7 +156,7 @@ const ICON_MAP = {
     sync: {
         data:
             'M492 8h-10c-6.627 0-12 5.373-12 12v110.627C426.929 57.261 347.224 8 256 8 123.228 8 14.824 112.338 8.31 243.493 7.971 250.311 13.475 256 20.301 256h10.016c6.353 0 11.646-4.949 11.977-11.293C48.157 132.216 141.097 42 256 42c82.862 0 154.737 47.077 190.289 116H332c-6.627 0-12 5.373-12 12v10c0 6.627 5.373 12 12 12h160c6.627 0 12-5.373 12-12V20c0-6.627-5.373-12-12-12zm-.301 248h-10.015c-6.352 0-11.647 4.949-11.977 11.293C463.841 380.158 370.546 470 256 470c-82.608 0-154.672-46.952-190.299-116H180c6.627 0 12-5.373 12-12v-10c0-6.627-5.373-12-12-12H20c-6.627 0-12 5.373-12 12v160c0 6.627 5.373 12 12 12h10c6.627 0 12-5.373 12-12V381.373C85.071 454.739 164.777 504 256 504c132.773 0 241.176-104.338 247.69-235.493.339-6.818-5.165-12.507-11.991-12.507z',
-        label: 'Re-Save with Current Config',
+        label: 'Re-save with current selection',
     },
     times: {
         data:

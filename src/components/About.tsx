@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Route } from './Navigation';
 import { IconLink } from './controls';
-import { Columns, Row } from './layout';
+import { FlexBox, Row } from './layout';
 import { sendMessage } from './utils';
 
 const Portrait =
@@ -37,17 +37,17 @@ const About = () => {
             }}
         >
             <Row>
-                <Columns align="center">
+                <FlexBox justify="center">
                     <Avatar />
-                </Columns>
+                </FlexBox>
             </Row>
             <Row>
-                <Columns align="center">
+                <FlexBox justify="center">
                     <strong>Aaron M. Wright</strong>
-                </Columns>
+                </FlexBox>
             </Row>
             <Row>
-                <Columns align="center">
+                <FlexBox justify="center">
                     <IconLink
                         iconName="envelope"
                         href="mailto:aaronmw@gmail.com?subject=Random"
@@ -72,13 +72,13 @@ const About = () => {
                         iconName="coffee-togo"
                         href="https://ko-fi.com/aaronwright"
                     />
-                </Columns>
+                </FlexBox>
             </Row>
             <Row style={{ padding: '0 15px', marginTop: '30px' }}>
                 I'm a Product Designer in Toronto, Canada. I built this plugin
-                after realizing how much time I was spending making and
-                re-making selections across multiple frames and groups. I hope
-                you like it, and let me know if there's something missing!
+                to make my own life easier, but hope you find it helpful. If
+                you've got feature requests, bug reports, etc., please get in
+                touch!
             </Row>
         </Route>
     );

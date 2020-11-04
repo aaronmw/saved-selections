@@ -1,3 +1,4 @@
+import * as React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
 export const COLOR_BLUE = '#18a0fb';
@@ -15,15 +16,15 @@ export const GlobalStyles = createGlobalStyle`
         outline: none;
         background-color: inherit;
         border: none;
-        font-size: 1rem;
+        font-size: 1rem; 
         font-family: Inter, sans-serif;
         text-transform: inherit;
     }
     :root {
         line-height: 1.1rem;
         font-size: 11px;
-        letter-spacing: 0.5;
-        background: radial-gradient(white, hsl(0, 0%, 95%));
+        letter-spacing: 0.5px;
+        background: white;
         user-select: none;
         color: ${COLOR_TEXT};
         -webkit-font-smoothing: subpixel-antialiased;
@@ -32,25 +33,34 @@ export const GlobalStyles = createGlobalStyle`
     strong {
         font-weight: ${FONT_WEIGHT_BOLD};
     }
+    em {
+        font-style: italic;
+    }
+    code {
+        font-family: monospace;
+        color: ${COLOR_TEXT};
+    }
 `;
 
 export const StyledAppContainer = styled.div``;
 
-export const Columns = styled.div`
-    flex-shrink: 1;
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: ${props => (props.align ? props.align : 'flex-end')};
-
-    & > * {
-        margin-left: ${props => (props.spacing === 'none' ? 0 : 8)}px;
-
-        &:first-child {
-            margin-left: 0;
+export const FlexBox = styled.div(
+    ({
+        align = 'center',
+        isFullWidth = false,
+        justify = 'space-between',
+        spacing = '',
+    }) => `
+        align-items: ${align};
+        display: flex;
+        justify-content: ${justify};
+        width: ${isFullWidth ? '100%' : 'auto'};
+        
+        > * + * {
+            margin-left: ${spacing};
         }
-    }
-`;
+    `,
+);
 
 export const Row = styled.div`
     & + & {

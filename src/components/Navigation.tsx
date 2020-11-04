@@ -4,7 +4,7 @@ import {
     COLOR_BORDER,
     COLOR_TEXT,
     COLOR_TEXT_LIGHT,
-    Columns,
+    FlexBox,
     FONT_WEIGHT_BOLD,
 } from './layout';
 
@@ -36,11 +36,12 @@ const NavButton = styled.button`
     `}
 `;
 
-const PRIMARY_ROUTES = [{ name: 'savedSelectionList', label: 'List' }];
-
-const SECONDARY_ROUTES = [{ name: 'about', label: 'About' }];
-
-export const NavBar = ({ activeRoute, onRouteButtonClick }) => {
+export const NavBar = ({
+    activeRoute,
+    primaryRoutes,
+    secondaryRoutes,
+    onRouteButtonClick,
+}) => {
     const printRoutes = routes =>
         routes.map(({ name, label }) => (
             <NavButton
@@ -55,12 +56,14 @@ export const NavBar = ({ activeRoute, onRouteButtonClick }) => {
     return (
         <StyledNavBar>
             <StyledNavBarContents>
-                <Columns align="space-between">
-                    <Columns align="flex-start">
-                        {printRoutes(PRIMARY_ROUTES)}
-                    </Columns>
-                    {printRoutes(SECONDARY_ROUTES)}
-                </Columns>
+                <FlexBox isFullWidth justify="space-between">
+                    <FlexBox justify="flex-start">
+                        {printRoutes(primaryRoutes)}
+                    </FlexBox>
+                    <FlexBox justify="flex-end">
+                        {printRoutes(secondaryRoutes)}
+                    </FlexBox>
+                </FlexBox>
             </StyledNavBarContents>
         </StyledNavBar>
     );
